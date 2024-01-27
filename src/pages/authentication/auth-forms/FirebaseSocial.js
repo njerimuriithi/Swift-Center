@@ -1,21 +1,21 @@
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery, Button, Stack } from '@mui/material';
+import {  useNavigate } from "react-router-dom";
 
 // assets
 import Google from 'assets/images/icons/google.svg';
 import Twitter from 'assets/images/icons/twitter.svg';
 import Facebook from 'assets/images/icons/facebook.svg';
-
+//auth import
+import { useAuth } from './auth-context';
 // ==============================|| FIREBASE - SOCIAL BUTTON ||============================== //
 
 const FirebaseSocial = () => {
+  const {loginWithGooglePopup} = useAuth();
+  const navigate = useNavigate();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const googleHandler = async () => {
-    // login || singup
-  };
 
   const twitterHandler = async () => {
     // login || singup
@@ -37,7 +37,12 @@ const FirebaseSocial = () => {
         color="secondary"
         fullWidth={!matchDownSM}
         startIcon={<img src={Google} alt="Google" />}
-        onClick={googleHandler}
+        onClick={() => {
+          loginWithGooglePopup().then((resolve) => {
+            navigate("/");
+          
+          });
+        }}
       >
         {!matchDownSM && 'Google'}
       </Button>

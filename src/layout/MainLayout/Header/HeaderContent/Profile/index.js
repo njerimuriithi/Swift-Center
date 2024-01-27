@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -23,11 +23,13 @@ import {
 import MainCard from 'components/MainCard';
 import Transitions from 'components/@extended/Transitions';
 import ProfileTab from './ProfileTab';
-import SettingTab from './SettingTab';
+
 
 // assets
-import avatar1 from 'assets/images/users/avatar-1.png';
+
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { useAuth } from 'pages/authentication/auth-forms/auth-context';
+import { useNavigate } from '../../../../../../node_modules/react-router-dom/dist/index';
 
 // tab panel wrapper
 function TabPanel({ children, value, index, ...other }) {
@@ -55,6 +57,9 @@ function a11yProps(index) {
 
 const Profile = () => {
   const theme = useTheme();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
+  console.log(currentUser);
 
   const handleLogout = async () => {
     // logout
@@ -83,6 +88,8 @@ const Profile = () => {
 
   return (
     <Box sx={{ flexShrink: 0, ml: 0.75 }}>
+      {currentUser ?(
+      <Fragment>
       <ButtonBase
         sx={{
           p: 0.25,
@@ -96,9 +103,11 @@ const Profile = () => {
         aria-haspopup="true"
         onClick={handleToggle}
       >
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
-          <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
-          <Typography variant="subtitle1">John Doe</Typography>
+ 
+      
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ p: 0.5 }}>
+          <Avatar alt="profile user" src={currentUser.photoURL} sx={{ width: 32, height: 32 }} />
+          <Typography variant="subtitle1">{currentUser.displayName}</Typography>
         </Stack>
       </ButtonBase>
       <Popper
@@ -139,23 +148,25 @@ const Profile = () => {
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Grid item>
                           <Stack direction="row" spacing={1.25} alignItems="center">
-                            <Avatar alt="profile user" src={avatar1} sx={{ width: 32, height: 32 }} />
+                            <Avatar alt="profile user" src={currentUser.photoURL} sx={{ width: 32, height: 32 }} />
                             <Stack>
-                              <Typography variant="h6">John Doe</Typography>
-                              <Typography variant="body2" color="textSecondary">
-                                UI/UX Designer
-                              </Typography>
+                              <Typography variant="h6">{currentUser.displayName}</Typography>
+                          
                             </Stack>
                           </Stack>
                         </Grid>
                         <Grid item>
-                          <IconButton size="large" color="secondary" onClick={handleLogout}>
+                          <IconButton size="large" color="secondary"  onClick={() =>
+                    logout().then((resolve) => {
+                      navigate("/login");
+                    })
+                  }>
                             <LogoutOutlined />
                           </IconButton>
                         </Grid>
                       </Grid>
                     </CardContent>
-                    {open && (
+                
                       <>
                         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                           <Tabs variant="fullWidth" value={value} onChange={handleChange} aria-label="profile tabs">
@@ -186,13 +197,18 @@ const Profile = () => {
                           </Tabs>
                         </Box>
                         <TabPanel value={value} index={0} dir={theme.direction}>
-                          <ProfileTab handleLogout={handleLogout} />
+                          <ProfileTab  onClick={() =>
+                    logout().then((resolve) => {
+                      navigate("/login");
+                    })
+                  } />
                         </TabPanel>
                         <TabPanel value={value} index={1} dir={theme.direction}>
-                          <SettingTab />
+                        
                         </TabPanel>
+                       
                       </>
-                    )}
+                    
                   </MainCard>
                 </ClickAwayListener>
               </Paper>
@@ -200,6 +216,8 @@ const Profile = () => {
           </Transitions>
         )}
       </Popper>
+      </Fragment>
+):(<Typography>Login</Typography>)}
     </Box>
   );
 };
